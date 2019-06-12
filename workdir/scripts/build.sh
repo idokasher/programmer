@@ -1,3 +1,3 @@
 #!/bin/sh
 
-echo "Running build script..."
+echo "Running build script... $@"
