@@ -12,6 +12,8 @@ The tool provides the user with a way to:
 
 - Clone the repository
 - Cd into the repository
+- python3 -m venv venv
+- source venv/bin/activate
 - pip3 install -r requirements.txt
 - Update settings.json (directly or by editing and running jsonbuilder.py)
 - ./run
