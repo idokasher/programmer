@@ -14,7 +14,7 @@ param_values = {'option1_values_list' : ["value1",
 settings['param_values'].update(param_values)
 
 build_params = [{"name" : "ComboBox Option",
-                 "value_name" : "option1_value_list",
+                 "value_name" : "option1_values_list",
                  "command" : "-o1"},
                 {"name" : "FreeText Named Option",
                  "value_name" : "",
