@@ -1,3 +1,4 @@
 #!/bin/sh
 
-echo "Running build script..."
+echo "Running program script..."
+sleep 3

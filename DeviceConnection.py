@@ -6,15 +6,16 @@ from PyQt5.QtCore import QThread, pyqtSignal, QObject
 
 from Settings import Settings
 
-class Thread(QThread):
+class Worker(QObject):
+
     finished = pyqtSignal(int)
     output   = pyqtSignal(str)
-
+    
     def __init__(self, cmds):
-        super(QThread, self).__init__()
+        super(QObject, self).__init__()
         self.cmds = cmds
 
-    def run(self):
+    def doWork(self):
         try:
             for cmd in self.cmds:
                 p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
@@ -51,6 +52,7 @@ class DeviceConnection(QObject):
         self.currentCommitHash  = None
 
         self.workerThread       = None
+        self.workerObject       = None
 
     def name(self):
         return self.deviceName
@@ -184,14 +186,20 @@ class DeviceConnection(QObject):
         self.runCommands(cmds, finishedSlot, appendLineSlot)
 
     def runCommands(self, cmds, finishedSlot = None, outputSlot = None):
-        self.workerThread = Thread(cmds)
-        if (finishedSlot): self.workerThread.finished.connect(finishedSlot)
-        if (outputSlot):   self.workerThread.output.connect(outputSlot)
-        self.workerThread.finished.connect(self.commandDone)
+        self.workerThread = QThread()
+        self.workerObject = Worker(cmds)
+        self.workerObject.moveToThread(self.workerThread)
+        self.workerThread.started.connect(self.workerObject.doWork)
+        if (finishedSlot): self.workerObject.finished.connect(finishedSlot)
+        if (outputSlot):   self.workerObject.output.connect(outputSlot)
+        self.workerObject.finished.connect(self.commandDone)
         self.workerThread.start()
 
     def commandDone(self):
+        self.workerThread.quit()
+        self.workerThread.wait()
         self.workerThread = None
+        self.workerObject = None
         
     def cancelCommand(self):
         # TODO find a way to stop the thread
